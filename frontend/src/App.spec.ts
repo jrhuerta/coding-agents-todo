@@ -58,6 +58,15 @@ describe('App', () => {
     expect(completedLabel.text()).toContain('Todo 2')
   })
 
+  it('does not call createTodo when form is submitted with empty title', async () => {
+    const wrapper = mount(App)
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Todo 1'))
+
+    await wrapper.find('form').trigger('submit')
+
+    expect(mockCreateTodo).not.toHaveBeenCalled()
+  })
+
   it('creates todo when form is submitted', async () => {
     mockCreateTodo.mockResolvedValue({
       id: 3,
@@ -75,6 +84,8 @@ describe('App', () => {
     await wrapper.find('form').trigger('submit')
 
     expect(mockCreateTodo).toHaveBeenCalledWith('New todo')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('New todo'))
+    expect(wrapper.findAll('.todo-item').length).toBe(3)
   })
 
   it('toggles completed when checkbox is clicked', async () => {
@@ -84,18 +95,27 @@ describe('App', () => {
       completed: true,
       created_at: '2025-01-01T00:00:00Z',
     })
+    const updatedTodos = [
+      { id: 1, title: 'Todo 1', completed: true, created_at: '2025-01-01T00:00:00Z' },
+      mockTodos[1]!,
+    ]
+    mockGetTodos.mockResolvedValueOnce(mockTodos).mockResolvedValueOnce(updatedTodos)
 
     const wrapper = mount(App)
     await vi.waitFor(() => expect(wrapper.text()).toContain('Todo 1'))
 
     const checkboxes = wrapper.findAll('input[type="checkbox"]')
-    await checkboxes[0]!.setValue(true)
+    await checkboxes[0]!.trigger('change')
 
     expect(mockUpdateTodo).toHaveBeenCalledWith(1, { completed: true })
+    await vi.waitFor(() => expect(wrapper.find('.todo-item.completed').text()).toContain('Todo 1'))
   })
 
   it('deletes todo when delete button is clicked', async () => {
     mockDeleteTodo.mockResolvedValue(undefined)
+    mockGetTodos
+      .mockResolvedValueOnce(mockTodos)
+      .mockResolvedValueOnce([mockTodos[1]!])
 
     const wrapper = mount(App)
     await vi.waitFor(() => expect(wrapper.find('button[aria-label="Delete"]').exists()).toBe(true))
@@ -104,5 +124,65 @@ describe('App', () => {
     await deleteBtn.trigger('click')
 
     expect(mockDeleteTodo).toHaveBeenCalledWith(1)
+    await vi.waitFor(() => expect(wrapper.text()).not.toContain('Todo 1'))
+    expect(wrapper.findAll('.todo-item').length).toBe(1)
+  })
+
+  it('displays empty list when no todos', async () => {
+    mockGetTodos.mockResolvedValue([])
+
+    const wrapper = mount(App)
+    await vi.waitFor(() => expect(wrapper.find('.loading').exists()).toBe(false))
+
+    expect(wrapper.findAll('.todo-item').length).toBe(0)
+  })
+
+  it('displays error when load fails', async () => {
+    mockGetTodos.mockRejectedValue(new Error('Network error'))
+
+    const wrapper = mount(App)
+    await vi.waitFor(() => expect(wrapper.find('[role="alert"]').exists()).toBe(true))
+
+    expect(wrapper.find('[role="alert"]').text()).toBe('Network error')
+  })
+
+  it('displays error when add fails', async () => {
+    mockCreateTodo.mockRejectedValue(new Error('Add failed'))
+
+    const wrapper = mount(App)
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Todo 1'))
+
+    const input = wrapper.find('input[type="text"]')
+    await input.setValue('New todo')
+    await wrapper.find('form').trigger('submit')
+
+    await vi.waitFor(() => expect(wrapper.find('[role="alert"]').exists()).toBe(true))
+    expect(wrapper.find('[role="alert"]').text()).toBe('Add failed')
+  })
+
+  it('displays error when toggle fails', async () => {
+    mockUpdateTodo.mockRejectedValue(new Error('Update failed'))
+
+    const wrapper = mount(App)
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Todo 1'))
+
+    const checkboxes = wrapper.findAll('input[type="checkbox"]')
+    await checkboxes[0]!.setValue(true)
+
+    await vi.waitFor(() => expect(wrapper.find('[role="alert"]').exists()).toBe(true))
+    expect(wrapper.find('[role="alert"]').text()).toBe('Update failed')
+  })
+
+  it('displays error when delete fails', async () => {
+    mockDeleteTodo.mockRejectedValue(new Error('Delete failed'))
+
+    const wrapper = mount(App)
+    await vi.waitFor(() => expect(wrapper.find('button[aria-label="Delete"]').exists()).toBe(true))
+
+    const deleteBtn = wrapper.find('button[aria-label="Delete"]')
+    await deleteBtn.trigger('click')
+
+    await vi.waitFor(() => expect(wrapper.find('[role="alert"]').exists()).toBe(true))
+    expect(wrapper.find('[role="alert"]').text()).toBe('Delete failed')
   })
 })

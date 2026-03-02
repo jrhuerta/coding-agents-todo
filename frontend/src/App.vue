@@ -101,31 +101,55 @@ async function removeTodo(id: number) {
 
 <style scoped>
 .todo-app {
-  max-width: 32rem;
-  margin: 2rem auto;
-  padding: 1rem;
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-lg);
 }
 
 h1 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-lg);
+  color: var(--color-text);
+  letter-spacing: -0.02em;
 }
 
 .add-form {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
 }
 
 .add-form input {
   flex: 1;
-  padding: 0.5rem;
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-body);
   font-size: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.add-form input::placeholder {
+  color: var(--color-text-muted);
+}
+.add-form input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-color: var(--color-accent);
 }
 
 .add-form button {
-  padding: 0.5rem 1rem;
-  cursor: pointer;
+  background: var(--color-accent);
+  color: var(--color-surface-elevated);
+  border-color: var(--color-accent);
+}
+.add-form button:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
 }
 
 .todo-list {
@@ -137,35 +161,67 @@ h1 {
 .todo-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #eee;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-xs);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s;
+}
+.todo-item:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .todo-item.completed .todo-title {
   text-decoration: line-through;
-  color: #888;
+  color: var(--color-text-completed);
+  opacity: 0.85;
 }
 
 .todo-title {
   flex: 1;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.todo-item input[type="checkbox"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+.todo-item input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .todo-item button {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
-  cursor: pointer;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.8125rem;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+.todo-item button:hover {
+  color: var(--color-error-text);
+  background: var(--color-error-bg);
+  border-color: var(--color-error-border);
 }
 
 .loading {
-  color: #666;
+  color: var(--color-text-muted);
+  padding: var(--space-md);
+  text-align: center;
 }
 
 .error {
-  color: #c00;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
-  background: #fee;
-  border-radius: 0.25rem;
+  color: var(--color-error-text);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
 }
 </style>
