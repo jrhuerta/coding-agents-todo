@@ -1,0 +1,23 @@
+services:
+  backend:
+    build: ./backend
+    volumes:
+      - backend_data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:////app/data/todo.db
+
+  frontend:
+    build: ./frontend
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  backend_data:
