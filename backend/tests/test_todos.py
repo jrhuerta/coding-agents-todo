@@ -88,3 +88,38 @@ def test_delete_nonexistent_returns_404(client: TestClient) -> None:
     """DELETE /todos/{id} returns 404 for non-existent id."""
     response = client.delete("/todos/99999")
     assert response.status_code == 404
+
+
+def test_post_empty_title_returns_422(client: TestClient) -> None:
+    """POST /todos returns 422 when title is empty string."""
+    response = client.post("/todos", json={"title": ""})
+    assert response.status_code == 422
+
+
+def test_post_missing_title_returns_422(client: TestClient) -> None:
+    """POST /todos returns 422 when title is missing."""
+    response = client.post("/todos", json={})
+    assert response.status_code == 422
+    assert any(
+        e.get("loc") == ["body", "title"] for e in response.json().get("detail", [])
+    )
+
+
+def test_post_invalid_title_type_returns_422(client: TestClient) -> None:
+    """POST /todos returns 422 when title is not a string."""
+    response = client.post("/todos", json={"title": 123})
+    assert response.status_code == 422
+
+
+def test_patch_invalid_id_returns_422(client: TestClient) -> None:
+    """PATCH /todos/{id} returns 422 when id is not a valid integer."""
+    response = client.patch("/todos/abc", json={"title": "Updated"})
+    assert response.status_code == 422
+
+
+def test_patch_empty_title_returns_422(client: TestClient) -> None:
+    """PATCH /todos/{id} returns 422 when title is empty string."""
+    create_resp = client.post("/todos", json={"title": "Original"})
+    todo_id = create_resp.json()["id"]
+    response = client.patch(f"/todos/{todo_id}", json={"title": ""})
+    assert response.status_code == 422
