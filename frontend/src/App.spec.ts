@@ -167,7 +167,7 @@ describe('App', () => {
     await vi.waitFor(() => expect(wrapper.text()).toContain('Todo 1'))
 
     const checkboxes = wrapper.findAll('input[type="checkbox"]')
-    await checkboxes[0]!.setValue(true)
+    await checkboxes[0]!.trigger('change')
 
     await vi.waitFor(() => expect(wrapper.find('[role="alert"]').exists()).toBe(true))
     expect(wrapper.find('[role="alert"]').text()).toBe('Update failed')
