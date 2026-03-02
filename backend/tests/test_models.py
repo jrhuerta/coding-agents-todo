@@ -1,16 +1,9 @@
 """Tests for Todo model."""
 
-import pytest
 from sqlalchemy import select
 
-from app.models import Base, Todo
-from app.database import get_engine, get_session
-
-
-@pytest.fixture(scope="session", autouse=True)
-def _create_tables() -> None:
-    """Create database tables from models before any test runs."""
-    Base.metadata.create_all(get_engine())
+from app.models import Todo
+from app.database import get_session
 
 
 def test_can_import_todo_from_app_models() -> None:
