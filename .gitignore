@@ -1,2 +1,9 @@
 # Worktrees
 .worktrees/
+
+# Python
+__pycache__/
+*.py[cod]
+*.db
+.env
+.env.local
